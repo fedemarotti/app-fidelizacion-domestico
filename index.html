@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>doméstico · Fidelización</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --naranja:#E8590A; --naranja-dark:#C04A08;
+  --verde:#1E8C45; --verde-light:#27AE60;
+  --rojo:#C0392B; --rojo-light:#E74C3C;
+  --gris-bg:#F2F2F2; --gris-card:#FFFFFF; --gris-borde:#E0E0E0;
+  --texto:#1A1A1A; --texto-suave:#666666;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+input::placeholder,textarea::placeholder{color:#999;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:var(--gris-bg);color:var(--texto);min-height:100vh;font-size:15px;}
+.screen{display:none;min-height:100vh;flex-direction:column;}
+.screen.active{display:flex;}
+.header{background:var(--naranja);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 10px rgba(0,0,0,.25);flex-shrink:0;}
+.header-logo{flex:1;font-family:'Pacifico',cursive;font-size:22px;}
+.header-logo small{display:block;font-family:-apple-system,sans-serif;font-size:9px;font-weight:400;letter-spacing:2px;text-transform:uppercase;opacity:.75;margin-top:2px;}
+#user-chip{display:none;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.35);border-radius:20px;padding:5px 10px 5px 8px;font-size:11px;font-weight:700;cursor:pointer;color:#fff;}
+.home-body{padding:20px 16px 40px;max-width:640px;margin:0 auto;width:100%;}
+.cumple-banner{background:linear-gradient(135deg,#fff5ef,#ffe9da);border:1.5px solid #ffd2b0;border-radius:14px;padding:14px 16px;margin-bottom:18px;}
+.cumple-banner h3{font-size:13px;color:var(--naranja-dark);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.cumple-item{background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.cumple-item:last-child{margin-bottom:0;}
+.cumple-nombre{font-weight:800;font-size:13px;}
+.cumple-msg{font-size:11px;color:var(--texto-suave);margin-top:2px;max-width:320px;}
+.btn-copiar{background:var(--verde);color:#fff;border:none;border-radius:8px;padding:7px 10px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;}
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px;}
+.menu-btn{background:var(--gris-card);border:1.5px solid var(--gris-borde);border-radius:16px;padding:26px 14px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.05);transition:transform .1s;}
+.menu-btn:active{transform:scale(.97);}
+.menu-btn .ico{font-size:34px;}
+.menu-btn .lbl{font-weight:800;font-size:13.5px;text-align:center;letter-spacing:.2px;}
+.menu-btn.naranja{border-color:#f3c7a8;}
+.menu-btn.verde{border-color:#b7ddc4;}
+.menu-btn.full{grid-column:1/-1;flex-direction:row;justify-content:center;padding:16px;}
+/* ── LOGIN ─────────────────────────────── */
+#login-overlay{position:fixed;inset:0;z-index:10000;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+.login-box{width:100%;max-width:360px;display:flex;flex-direction:column;gap:18px;align-items:center;}
+.login-logo{font-family:'Pacifico',cursive;font-size:32px;color:var(--naranja);}
+.login-sub{font-size:12px;color:#888;letter-spacing:3px;text-transform:uppercase;font-weight:600;margin-top:-12px;}
+.login-field{width:100%;display:flex;flex-direction:column;gap:6px;}
+.login-field label{font-size:11px;font-weight:700;color:#555;letter-spacing:.5px;text-transform:uppercase;}
+.login-field input{width:100%;padding:13px 14px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;outline:none;}
+.login-field input:focus{border-color:var(--naranja);}
+.login-field input.login-error{border-color:var(--rojo);}
+.login-btn{width:100%;padding:14px;background:var(--naranja);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;}
+.login-btn:disabled{opacity:.5;}
+.login-err-msg{font-size:13px;color:var(--rojo);text-align:center;min-height:18px;font-weight:600;}
+#splash-screen{position:fixed;inset:0;z-index:9999;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
+@keyframes _spin{to{transform:rotate(360deg);}}
+.spinner{width:36px;height:36px;border:3px solid var(--naranja);border-top-color:transparent;border-radius:50%;animation:_spin .75s linear infinite;}
+/* ── MODALES ──────────────────────────────── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 14px;}
+.modal-overlay.active{display:flex;}
+.modal-box{background:#fff;border-radius:18px;width:100%;max-width:480px;padding:22px;margin:auto;box-shadow:0 10px 50px rgba(0,0,0,.3);}
+.modal-title{font-size:17px;font-weight:900;margin-bottom:4px;}
+.modal-sub{font-size:12px;color:var(--texto-suave);margin-bottom:16px;}
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:11px;font-weight:800;color:#555;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
+.field input,.field textarea,.field select{width:100%;padding:11px 12px;border:1.5px solid #ddd;border-radius:9px;font-size:14.5px;outline:none;background:#fff;}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--naranja);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.modal-actions{display:flex;gap:10px;margin-top:18px;}
+.btn{flex:1;padding:12px;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;}
+.btn-primary{background:var(--naranja);color:#fff;}
+.btn-primary:hover{background:var(--naranja-dark);}
+.btn-secondary{background:#eee;color:#333;}
+.btn-verde{background:var(--verde);color:#fff;}
+.btn-rojo{background:var(--rojo);color:#fff;}
+.btn:disabled{opacity:.5;cursor:default;}
+.msg-inline{font-size:12.5px;font-weight:700;text-align:center;min-height:16px;margin-top:6px;}
+.msg-inline.err{color:var(--rojo);}
+.msg-inline.ok{color:var(--verde);}
+/* búsqueda socio */
+.search-row{display:flex;gap:8px;margin-bottom:14px;}
+.search-row input{flex:1;}
+.search-results{margin-bottom:10px;}
+.search-hit{padding:10px 12px;border:1.5px solid var(--gris-borde);border-radius:10px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.search-hit:hover{border-color:var(--naranja);}
+.search-hit .nom{font-weight:800;font-size:13.5px;}
+.search-hit .dni{font-size:11.5px;color:var(--texto-suave);}
+/* ficha socio */
+.ficha-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.ficha-nom{font-size:17px;font-weight:900;}
+.ficha-dni{font-size:12px;color:var(--texto-suave);}
+.ficha-puntos{background:var(--naranja);color:#fff;border-radius:12px;padding:8px 16px;text-align:center;}
+.ficha-puntos b{display:block;font-size:22px;font-weight:900;line-height:1;}
+.ficha-puntos span{font-size:9px;text-transform:uppercase;letter-spacing:.5px;}
+.ficha-datos{font-size:12.5px;color:#444;line-height:1.9;margin-bottom:14px;background:#f8f8f8;border-radius:10px;padding:10px 12px;}
+.ficha-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
+.ficha-actions button{padding:10px 4px;border:none;border-radius:9px;font-size:11.5px;font-weight:800;cursor:pointer;color:#fff;}
+.hist-title{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;color:var(--texto-suave);margin:14px 0 8px;}
+.hist-item{display:flex;justify-content:space-between;padding:9px 10px;border-bottom:1px solid #eee;font-size:12.5px;}
+.hist-item .fec{color:var(--texto-suave);font-size:11px;}
+.hist-item .pts{color:var(--verde);font-weight:800;}
+.premio-sugerido{display:flex;gap:10px;align-items:center;background:#f0fbf3;border:1px solid #cdecd7;border-radius:10px;padding:8px 10px;margin-bottom:8px;}
+.premio-sugerido img{width:38px;height:38px;object-fit:cover;border-radius:8px;background:#ddd;}
+.premio-sugerido .n{font-weight:800;font-size:12.5px;}
+.premio-sugerido .p{font-size:11px;color:var(--verde);font-weight:700;}
+/* premios grid */
+.premios-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.premio-card{border:1.5px solid var(--gris-borde);border-radius:14px;overflow:hidden;background:#fff;position:relative;}
+.premio-card img{width:100%;height:90px;object-fit:cover;background:#eee;display:block;}
+.premio-card .pc-body{padding:9px 10px;}
+.premio-card .pc-nom{font-size:12.5px;font-weight:800;line-height:1.25;}
+.premio-card .pc-pts{font-size:12px;color:var(--naranja);font-weight:900;margin-top:3px;}
+.premio-card .pc-del{position:absolute;top:6px;right:6px;background:rgba(192,57,43,.9);color:#fff;border:none;border-radius:6px;width:22px;height:22px;font-size:12px;cursor:pointer;}
+.canje-list-item{border:1.5px solid var(--gris-borde);border-radius:12px;padding:10px 12px;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.canje-list-item.disabled{opacity:.4;}
+.canje-list-item .n{font-weight:800;font-size:13px;}
+.canje-list-item .p{font-size:11.5px;color:var(--texto-suave);}
+.back-link{font-size:12px;color:var(--naranja);font-weight:700;cursor:pointer;margin-bottom:10px;display:inline-block;}
+.dot-toggle{display:flex;gap:8px;margin-bottom:12px;}
+.dot-toggle label{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;cursor:pointer;}
+/* ── RECIBO IMPRIMIBLE ──────────────────────── */
+#recibo-print{display:none;}
+@media print{
+  body>*:not(#recibo-print){display:none!important;}
+  #recibo-print{display:block!important;position:static;inset:auto;}
+}
+.recibo-hoja{width:100%;max-width:560px;margin:0 auto;padding:30px;font-family:Arial,Helvetica,sans-serif;color:#111;}
+.recibo-hoja h1{font-family:'Pacifico',cursive;color:var(--naranja);font-size:26px;margin-bottom:2px;}
+.recibo-hoja h2{font-size:13px;text-transform:uppercase;letter-spacing:2px;color:#888;margin-bottom:20px;}
+.recibo-tabla{width:100%;border-collapse:collapse;margin-bottom:24px;}
+.recibo-tabla td{padding:8px 4px;border-bottom:1px solid #ddd;font-size:13.5px;}
+.recibo-tabla td:first-child{color:#666;width:45%;}
+.recibo-tabla td:last-child{font-weight:800;text-align:right;}
+.recibo-firma{margin-top:60px;display:flex;justify-content:space-between;gap:30px;}
+.recibo-firma div{flex:1;border-top:1.5px solid #333;padding-top:6px;font-size:11.5px;text-align:center;color:#555;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:11px 20px;border-radius:24px;font-size:13px;font-weight:700;z-index:9000;opacity:0;transition:opacity .25s;pointer-events:none;}
+.toast.show{opacity:1;}
+@media (max-width:420px){.menu-grid{grid-template-columns:1fr;}.premios-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-overlay" style="display:none">
+  <div class="login-box">
+    <div class="login-logo">doméstico</div>
+    <div class="login-sub">Fidelización</div>
+    <div class="login-field">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="tu@email.com" autocomplete="email"
+        onkeydown="if(event.key==='Enter') document.getElementById('login-pass').focus()">
+    </div>
+    <div class="login-field">
+      <label>Contraseña</label>
+      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter') doLogin()">
+    </div>
+    <div class="login-err-msg" id="login-err"></div>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Ingresar</button>
+  </div>
+</div>
+
+<!-- SPLASH -->
+<div id="splash-screen" style="display:none">
+  <div class="login-logo">doméstico</div>
+  <div class="login-sub" style="margin-top:-6px">Fidelización</div>
+  <div class="spinner"></div>
+  <div style="font-size:12px;color:#bbb">Conectando con la nube…</div>
+</div>
+
+<!-- HOME -->
+<div class="screen" id="screen-home">
+  <div class="header">
+    <div class="header-logo">doméstico<small>Fidelización · Socios</small></div>
+    <div id="user-chip" onclick="doLogout()" title="Cerrar sesión">
+      <span id="user-chip-name">👤</span><span>Salir</span>
+    </div>
+  </div>
+  <div class="home-body">
+    <div class="cumple-banner" id="cumple-banner" style="display:none">
+      <h3 id="cumple-titulo">🎂 Cumpleaños de hoy</h3>
+      <div id="cumple-list"></div>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-btn naranja" onclick="abrirCargarSocio()">
+        <div class="ico">📝</div><div class="lbl">Cargar Socio</div>
+      </div>
+      <div class="menu-btn naranja" onclick="abrirVerSocio()">
+        <div class="ico">🔎</div><div class="lbl">Ver Socio</div>
+      </div>
+      <div class="menu-btn full verde" onclick="abrirPremios()">
+        <div class="ico" style="margin-right:8px">🎁</div><div class="lbl">Cargar Premios</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CARGAR SOCIO -->
+<div class="modal-overlay" id="modal-cargar-socio">
+  <div class="modal-box">
+    <div class="modal-title">Cargar Socio</div>
+    <div class="modal-sub">Alta gratuita · suma 100 puntos al confirmar</div>
+    <div class="field">
+      <label>D.N.I.</label>
+      <input type="text" id="cs-dni" placeholder="22.988.951" inputmode="numeric" oninput="onDniInput(this)">
+    </div>
+    <div class="field">
+      <label>Nombre y Apellido</label>
+      <input type="text" id="cs-nombre" placeholder="Nombre completo">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Día de cumpleaños</label>
+        <input type="number" id="cs-dia" min="1" max="31" placeholder="Ej: 16">
+      </div>
+      <div class="field">
+        <label>Mes de cumpleaños</label>
+        <select id="cs-mes">
+          <option value="">Mes</option>
+          <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+          <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+          <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Mail</label>
+      <input type="email" id="cs-email" placeholder="socio@mail.com">
+    </div>
+    <div class="field">
+      <label>WhatsApp</label>
+      <input type="text" id="cs-whatsapp" placeholder="11 2345 6789">
+    </div>
+    <div class="dot-toggle">
+      <label><input type="checkbox" id="cs-compra-check" onchange="document.getElementById('cs-compra-field').style.display=this.checked?'block':'none'"> Ya realizó una compra</label>
+    </div>
+    <div class="field" id="cs-compra-field" style="display:none">
+      <label>Importe de la compra ($)</label>
+      <input type="number" id="cs-compra-importe" placeholder="10670">
+    </div>
+    <div class="msg-inline" id="cs-msg"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="cerrarModal('modal-cargar-socio')">Cerrar</button>
+      <button class="btn btn-primary" id="cs-guardar-btn" onclick="guardarSocioNuevo()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: VER SOCIO (busqueda + ficha) -->
+<div class="modal-overlay" id="modal-ver-socio">
+  <div class="modal-box" style="max-width:520px">
+    <div id="vs-buscar">
+      <div class="modal-title">Ver Socio</div>
+      <div class="modal-sub">Buscá por DNI. Si no lo encontrás, buscá por apellido.</div>
+      <div class="search-row">
+        <input type="text" id="vs-dni" placeholder="D.N.I. (22.988.951)" inputmode="numeric" oninput="onDniInput(this)"
+          onkeydown="if(event.key==='Enter') buscarPorDni()">
+        <button class="btn btn-primary" style="flex:0 0 auto;padding:11px 16px" onclick="buscarPorDni()">Buscar</button>
+      </div>
+      <div class="search-row">
+        <input type="text" id="vs-apellido" placeholder="Buscar por apellido…" onkeydown="if(event.key==='Enter') buscarPorApellido()">
+        <button class="btn btn-secondary" style="flex:0 0 auto;padding:11px 16px" onclick="buscarPorApellido()">Buscar</button>
+      </div>
+      <div class="search-results" id="vs-resultados"></div>
+      <div class="msg-inline err" id="vs-msg"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="cerrarModal('modal-ver-socio')">Cerrar</button>
+      </div>
+    </div>
+    <div id="vs-ficha" style="display:none"></div>
+  </div>
+</div>
+
+<!-- MODAL: EDITAR SOCIO -->
+<div class="modal-overlay" id="modal-editar-socio">
+  <div class="modal-box">
+    <div class="modal-title">Editar Información</div>
+    <input type="hidden" id="es-dni-original">
+    <div class="field"><label>D.N.I.</label><input type="text" id="es-dni" inputmode="numeric" oninput="onDniInput(this)"></div>
+    <div class="field"><label>Nombre y Apellido</label><input type="text" id="es-nombre"></div>
+    <div class="field-row">
+      <div class="field"><label>Día cumpleaños</label><input type="number" id="es-dia" min="1" max="31"></div>
+      <div class="field"><label>Mes cumpleaños</label>
+        <select id="es-mes"><option value="">Mes</option>
+          <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+          <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+          <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Mail</label><input type="email" id="es-email"></div>
+    <div class="field"><label>WhatsApp</label><input type="text" id="es-whatsapp"></div>
+    <div class="field"><label>Puntos</label><input type="number" id="es-puntos"></div>
+    <div class="msg-inline" id="es-msg"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="cerrarModal('modal-editar-socio')">Cerrar</button>
+      <button class="btn btn-primary" onclick="guardarEdicionSocio()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CARGAR PUNTOS -->
+<div class="modal-overlay" id="modal-cargar-puntos">
+  <div class="modal-box">
+    <div class="modal-title">Cargar Puntos</div>
+    <div class="modal-sub" id="cp-sub"></div>
+    <input type="hidden" id="cp-dni">
+    <div class="field">
+      <label>Importe de la compra ($)</label>
+      <input type="number" id="cp-importe" placeholder="10670" oninput="previewPuntos()">
+    </div>
+    <div class="msg-inline ok" id="cp-preview"></div>
+    <div class="msg-inline err" id="cp-msg"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="cerrarModal('modal-cargar-puntos')">Cerrar</button>
+      <button class="btn btn-primary" onclick="confirmarCargaPuntos()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CANJEAR PREMIO -->
+<div class="modal-overlay" id="modal-canjear">
+  <div class="modal-box">
+    <div class="modal-title">Canjear Premio</div>
+    <div class="modal-sub" id="cj-sub"></div>
+    <input type="hidden" id="cj-dni">
+    <div id="cj-lista"></div>
+    <div class="msg-inline err" id="cj-msg"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="cerrarModal('modal-canjear')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CONFIRMAR CANJE -->
+<div class="modal-overlay" id="modal-confirmar-canje">
+  <div class="modal-box">
+    <div class="modal-title">Confirmar canje</div>
+    <div class="modal-sub" id="cc-detalle" style="font-size:13.5px;color:#333"></div>
+    <div class="msg-inline err" id="cc-msg"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="cerrarModal('modal-confirmar-canje')">Cancelar</button>
+      <button class="btn btn-verde" onclick="ejecutarCanje()">Confirmar y generar recibo</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CARGAR / VER PREMIOS -->
+<div class="modal-overlay" id="modal-premios">
+  <div class="modal-box" style="max-width:560px">
+    <div class="modal-title">Premios</div>
+    <div class="modal-sub">Cargá los premios que los socios pueden canjear con sus puntos.</div>
+    <div class="field"><label>Nombre del premio</label><input type="text" id="pr-nombre" placeholder="Ej: Kit de limpieza premium"></div>
+    <div class="field"><label>Descripción</label><textarea id="pr-desc" rows="2" placeholder="Detalle del premio"></textarea></div>
+    <div class="field-row">
+      <div class="field"><label>Puntos requeridos</label><input type="number" id="pr-puntos" placeholder="1000"></div>
+      <div class="field"><label>Foto</label><input type="file" id="pr-foto" accept="image/*"></div>
+    </div>
+    <div class="msg-inline" id="pr-msg"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="cerrarModal('modal-premios')">Cerrar</button>
+      <button class="btn btn-primary" id="pr-guardar-btn" onclick="guardarPremio()">Agregar premio</button>
+    </div>
+    <div class="hist-title">Premios cargados</div>
+    <div class="premios-grid" id="premios-grid"></div>
+  </div>
+</div>
+
+<!-- RECIBO IMPRIMIBLE -->
+<div id="recibo-print">
+  <div class="recibo-hoja">
+    <h1>doméstico</h1>
+    <h2>Recibo de canje de premio</h2>
+    <table class="recibo-tabla">
+      <tr><td>Fecha</td><td id="rc-fecha"></td></tr>
+      <tr><td>Socio</td><td id="rc-nombre"></td></tr>
+      <tr><td>D.N.I.</td><td id="rc-dni"></td></tr>
+      <tr><td>Premio entregado</td><td id="rc-premio"></td></tr>
+      <tr><td>Puntos descontados</td><td id="rc-puntos"></td></tr>
+      <tr><td>Puntos restantes</td><td id="rc-restantes"></td></tr>
+      <tr><td>Atendido por</td><td id="rc-vendedor"></td></tr>
+    </table>
+    <p style="font-size:12px;color:#555;line-height:1.5">
+      El socio declara haber recibido el premio detallado arriba a cambio de los puntos
+      correspondientes acumulados en el programa de fidelización doméstico, y presta
+      conformidad con su firma a continuación.
+    </p>
+    <div class="recibo-firma">
+      <div>Firma del socio</div>
+      <div>Firma / sello doméstico</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// CONFIG SUPABASE — mismo proyecto que Caja Diaria / Pastas
+// ══════════════════════════════════════════════════════════
+const SUPABASE_URL      = 'https://pfufrqqzgwfnfobuvptj.supabase.co';
+const SUPABASE_ANON_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmdWZycXF6Z3dmbmZvYnV2cHRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2ODIwMTMsImV4cCI6MjA5ODI1ODAxM30.3dn0x7SmDtjkspsVZVmx3KWUvggPZSKrhkO7a-g2PqU';
+let _sb = null;
+let _userRole = null;
+let _userName = '';
+
+// ══════════════════════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════════════════════
+async function initApp(){
+  _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const { data:{ session } } = await _sb.auth.getSession();
+  if(session){ await _afterLogin(session); }
+  else{
+    document.getElementById('splash-screen').style.display='none';
+    document.getElementById('login-overlay').style.display='flex';
+  }
+}
+
+async function doLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-err');
+  const btn   = document.getElementById('login-btn');
+  errEl.textContent='';
+  if(!email || !pass){ errEl.textContent='Completá email y contraseña.'; return; }
+  btn.disabled=true; btn.textContent='Ingresando…';
+  try{
+    const { data, error } = await _sb.auth.signInWithPassword({ email, password: pass });
+    if(error) throw error;
+    document.getElementById('login-overlay').style.display='none';
+    document.getElementById('splash-screen').style.display='flex';
+    await _afterLogin(data.session);
+  }catch(err){
+    errEl.textContent='Email o contraseña incorrectos.';
+    btn.disabled=false; btn.textContent='Ingresar';
+  }
+}
+
+async function _afterLogin(session){
+  try{
+    const { data:profile } = await _sb.from('profiles').select('role, nombre, email').eq('id', session.user.id).single();
+    if(!profile){
+      await _sb.auth.signOut();
+      document.getElementById('splash-screen').style.display='none';
+      document.getElementById('login-overlay').style.display='flex';
+      document.getElementById('login-err').textContent='No tenés acceso a esta aplicación.';
+      return;
+    }
+    _userRole = profile.role || 'vendedor';
+    _userName = profile.nombre || profile.email || session.user.email || '';
+    document.getElementById('user-chip').style.display='flex';
+    document.getElementById('user-chip-name').textContent='👤 '+_userName;
+    document.getElementById('splash-screen').style.display='none';
+    mostrarHome();
+    cargarBannerCumpleanos();
+  }catch(ex){
+    toast('❌ '+(ex.message||String(ex)));
+    document.getElementById('splash-screen').style.display='none';
+    document.getElementById('login-overlay').style.display='flex';
+  }
+}
+
+async function doLogout(){
+  await _sb.auth.signOut();
+  location.reload();
+}
+
+function mostrarHome(){
+  document.getElementById('screen-home').classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════════
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+function cerrarModal(id){ document.getElementById(id).classList.remove('active'); }
+function abrirModal(id){ document.getElementById(id).classList.add('active'); }
+
+// Formatea DNI con puntos de miles: 22988951 -> 22.988.951
+function formatDNI(raw){
+  const d = String(raw||'').replace(/\D/g,'').slice(0,9);
+  const rev = d.split('').reverse().join('');
+  const chunks = rev.match(/.{1,3}/g)||[];
+  return chunks.join('.').split('').reverse().join('');
+}
+function limpiarDNI(raw){ return String(raw||'').replace(/\D/g,''); }
+function onDniInput(el){
+  const pos = el.selectionStart;
+  const before = el.value.length;
+  el.value = formatDNI(el.value);
+  const after = el.value.length;
+  try{ el.selectionStart = el.selectionEnd = pos + (after-before); }catch(e){}
+}
+
+// Regla de puntos: 1 punto cada 100 pesos, +1 extra si el resto de la centena es >= 51
+function calcularPuntos(importe){
+  importe = Math.round(Number(importe)||0);
+  if(importe<=0) return 0;
+  let base = Math.floor(importe/100);
+  const resto = importe % 100;
+  if(resto>=51) base += 1;
+  return base;
+}
+
+function fechaCorta(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+
+// ══════════════════════════════════════════════════════════
+// CARGAR SOCIO
+// ══════════════════════════════════════════════════════════
+function abrirCargarSocio(){
+  ['cs-dni','cs-nombre','cs-dia','cs-mes','cs-email','cs-whatsapp','cs-compra-importe'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cs-compra-check').checked=false;
+  document.getElementById('cs-compra-field').style.display='none';
+  document.getElementById('cs-msg').textContent='';
+  abrirModal('modal-cargar-socio');
+}
+
+async function guardarSocioNuevo(){
+  const dni = limpiarDNI(document.getElementById('cs-dni').value);
+  const nombre = document.getElementById('cs-nombre').value.trim();
+  const dia = document.getElementById('cs-dia').value ? parseInt(document.getElementById('cs-dia').value) : null;
+  const mes = document.getElementById('cs-mes').value ? parseInt(document.getElementById('cs-mes').value) : null;
+  const email = document.getElementById('cs-email').value.trim();
+  const whatsapp = document.getElementById('cs-whatsapp').value.trim();
+  const hizoCompra = document.getElementById('cs-compra-check').checked;
+  const importe = hizoCompra ? Number(document.getElementById('cs-compra-importe').value)||0 : 0;
+  const msg = document.getElementById('cs-msg');
+  msg.className='msg-inline err'; msg.textContent='';
+
+  if(!dni || dni.length<7){ msg.textContent='Ingresá un DNI válido.'; return; }
+  if(!nombre){ msg.textContent='Ingresá nombre y apellido.'; return; }
+
+  const btn = document.getElementById('cs-guardar-btn');
+  btn.disabled=true; btn.textContent='Guardando…';
+  try{
+    const { data:existe } = await _sb.from('fidelizacion_socios').select('dni').eq('dni', dni).maybeSingle();
+    if(existe){ msg.textContent='Ya existe un socio con ese DNI.'; btn.disabled=false; btn.textContent='Guardar'; return; }
+
+    const puntosCompra = hizoCompra ? calcularPuntos(importe) : 0;
+    const puntosIniciales = 100 + puntosCompra;
+
+    const { error:errIns } = await _sb.from('fidelizacion_socios').insert({
+      dni, nombre_completo:nombre, email, whatsapp,
+      cumple_dia:dia, cumple_mes:mes, puntos:puntosIniciales
+    });
+    if(errIns) throw errIns;
+
+    if(hizoCompra && importe>0){
+      await _sb.from('fidelizacion_compras').insert({
+        socio_dni:dni, importe, puntos_sumados:puntosCompra, vendedor:_userName
+      });
+    }
+
+    toast('✅ Socio cargado — '+puntosIniciales+' puntos');
+    cerrarModal('modal-cargar-socio');
+    cargarBannerCumpleanos();
+  }catch(ex){
+    msg.textContent = ex.message || 'Error al guardar.';
+  }finally{
+    btn.disabled=false; btn.textContent='Guardar';
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// VER SOCIO — búsqueda + ficha
+// ══════════════════════════════════════════════════════════
+let _socioActual = null;
+
+function abrirVerSocio(){
+  document.getElementById('vs-dni').value='';
+  document.getElementById('vs-apellido').value='';
+  document.getElementById('vs-resultados').innerHTML='';
+  document.getElementById('vs-msg').textContent='';
+  document.getElementById('vs-buscar').style.display='block';
+  document.getElementById('vs-ficha').style.display='none';
+  abrirModal('modal-ver-socio');
+}
+
+async function buscarPorDni(){
+  const dni = limpiarDNI(document.getElementById('vs-dni').value);
+  const msg = document.getElementById('vs-msg');
+  msg.textContent=''; document.getElementById('vs-resultados').innerHTML='';
+  if(!dni){ msg.textContent='Ingresá un DNI.'; return; }
+  try{
+    const { data, error } = await _sb.from('fidelizacion_socios').select('*').eq('dni', dni).maybeSingle();
+    if(error) throw error;
+    if(!data){ msg.textContent='No se encontró ningún socio con ese DNI. Probá buscar por apellido.'; return; }
+    abrirFichaSocio(data);
+  }catch(ex){ msg.textContent = ex.message || 'Error al buscar.'; }
+}
+
+async function buscarPorApellido(){
+  const q = document.getElementById('vs-apellido').value.trim();
+  const msg = document.getElementById('vs-msg');
+  const res = document.getElementById('vs-resultados');
+  msg.textContent=''; res.innerHTML='';
+  if(!q){ msg.textContent='Ingresá un apellido o nombre para buscar.'; return; }
+  try{
+    const { data, error } = await _sb.from('fidelizacion_socios').select('*').ilike('nombre_completo', '%'+q+'%').limit(15);
+    if(error) throw error;
+    if(!data || !data.length){ msg.textContent='No se encontraron socios con ese nombre.'; return; }
+    res.innerHTML = data.map(s=>`
+      <div class="search-hit" onclick='seleccionarSocioJSON(${JSON.stringify(JSON.stringify(s))})'>
+        <div><div class="nom">${s.nombre_completo}</div><div class="dni">DNI ${formatDNI(s.dni)}</div></div>
+        <div style="font-weight:800;color:var(--naranja)">${s.puntos} pts</div>
+      </div>`).join('');
+  }catch(ex){ msg.textContent = ex.message || 'Error al buscar.'; }
+}
+function seleccionarSocioJSON(str){ abrirFichaSocio(JSON.parse(str)); }
+
+async function abrirFichaSocio(socio){
+  _socioActual = socio;
+  document.getElementById('vs-buscar').style.display='none';
+  const ficha = document.getElementById('vs-ficha');
+  ficha.style.display='block';
+  ficha.innerHTML = '<div style="text-align:center;padding:30px;color:#999">Cargando…</div>';
+
+  const [{data:compras}, {data:premios}] = await Promise.all([
+    _sb.from('fidelizacion_compras').select('*').eq('socio_dni', socio.dni).order('fecha',{ascending:false}),
+    _sb.from('fidelizacion_premios').select('*').eq('activo', true).lte('puntos_requeridos', socio.puntos).order('puntos_requeridos',{ascending:false})
+  ]);
+
+  const mesesNom = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const cumpleTxt = socio.cumple_dia && socio.cumple_mes ? (socio.cumple_dia+' de '+mesesNom[socio.cumple_mes]) : '—';
+
+  let historialHtml = '<div style="text-align:center;padding:14px;color:#999;font-size:12.5px">Sin compras registradas todavía.</div>';
+  if(compras && compras.length){
+    historialHtml = compras.map(c=>`
+      <div class="hist-item">
+        <div><div>$ ${Number(c.importe).toLocaleString('es-AR')}</div><div class="fec">${fechaCorta(c.fecha)}</div></div>
+        <div class="pts">+${c.puntos_sumados} pts</div>
+      </div>`).join('');
+  }
+
+  let premiosHtml = '<div style="font-size:12px;color:#999">Todavía no llega a los puntos de ningún premio cargado.</div>';
+  if(premios && premios.length){
+    premiosHtml = premios.map(p=>`
+      <div class="premio-sugerido">
+        <img src="${p.foto_url||''}" onerror="this.style.visibility='hidden'">
+        <div><div class="n">${p.nombre}</div><div class="p">${p.puntos_requeridos} pts</div></div>
+      </div>`).join('');
+  }
+
+  ficha.innerHTML = `
+    <div class="back-link" onclick="abrirVerSocio()">‹ Volver a buscar</div>
+    <div class="ficha-head">
+      <div><div class="ficha-nom">${socio.nombre_completo}</div><div class="ficha-dni">DNI ${formatDNI(socio.dni)}</div></div>
+      <div class="ficha-puntos"><b>${socio.puntos}</b><span>puntos</span></div>
+    </div>
+    <div class="ficha-datos">
+      🎂 Cumpleaños: ${cumpleTxt}<br>
+      ✉️ Mail: ${socio.email||'—'}<br>
+      💬 WhatsApp: ${socio.whatsapp||'—'}
+    </div>
+    <div class="ficha-actions">
+      <button style="background:var(--verde)" onclick="abrirCargarPuntos()">➕ Cargar puntos</button>
+      <button style="background:var(--naranja)" onclick="abrirCanjear()">🎁 Canjear premio</button>
+      <button style="background:#555" onclick="abrirEditarSocio()">✏️ Editar</button>
+    </div>
+    <div class="hist-title">🏆 Premios que ya puede canjear</div>
+    ${premiosHtml}
+    <div class="hist-title">🧾 Historial de compras</div>
+    ${historialHtml}
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="btn btn-secondary" onclick="cerrarModal('modal-ver-socio')">Cerrar</button>
+    </div>
+  `;
+}
+
+async function refrescarFichaActual(){
+  const { data } = await _sb.from('fidelizacion_socios').select('*').eq('dni', _socioActual.dni).maybeSingle();
+  if(data) abrirFichaSocio(data);
+}
+
+// ══════════════════════════════════════════════════════════
+// EDITAR SOCIO
+// ══════════════════════════════════════════════════════════
+function abrirEditarSocio(){
+  const s = _socioActual;
+  document.getElementById('es-dni-original').value = s.dni;
+  document.getElementById('es-dni').value = formatDNI(s.dni);
+  document.getElementById('es-nombre').value = s.nombre_completo||'';
+  document.getElementById('es-dia').value = s.cumple_dia||'';
+  document.getElementById('es-mes').value = s.cumple_mes||'';
+  document.getElementById('es-email').value = s.email||'';
+  document.getElementById('es-whatsapp').value = s.whatsapp||'';
+  document.getElementById('es-puntos').value = s.puntos||0;
+  document.getElementById('es-msg').textContent='';
+  abrirModal('modal-editar-socio');
+}
+
+async function guardarEdicionSocio(){
+  const dniOriginal = document.getElementById('es-dni-original').value;
+  const msg = document.getElementById('es-msg');
+  msg.className='msg-inline err'; msg.textContent='';
+  const payload = {
+    nombre_completo: document.getElementById('es-nombre').value.trim(),
+    cumple_dia: document.getElementById('es-dia').value ? parseInt(document.getElementById('es-dia').value) : null,
+    cumple_mes: document.getElementById('es-mes').value ? parseInt(document.getElementById('es-mes').value) : null,
+    email: document.getElementById('es-email').value.trim(),
+    whatsapp: document.getElementById('es-whatsapp').value.trim(),
+    puntos: parseInt(document.getElementById('es-puntos').value)||0
+  };
+  if(!payload.nombre_completo){ msg.textContent='El nombre no puede estar vacío.'; return; }
+  try{
+    const { error } = await _sb.from('fidelizacion_socios').update(payload).eq('dni', dniOriginal);
+    if(error) throw error;
+    toast('✅ Datos actualizados');
+    cerrarModal('modal-editar-socio');
+    _socioActual = { ..._socioActual, ...payload };
+    await refrescarFichaActual();
+  }catch(ex){ msg.textContent = ex.message || 'Error al guardar.'; }
+}
+
+// ══════════════════════════════════════════════════════════
+// CARGAR PUNTOS (por compra)
+// ══════════════════════════════════════════════════════════
+function abrirCargarPuntos(){
+  document.getElementById('cp-dni').value = _socioActual.dni;
+  document.getElementById('cp-sub').textContent = _socioActual.nombre_completo+' · DNI '+formatDNI(_socioActual.dni);
+  document.getElementById('cp-importe').value='';
+  document.getElementById('cp-preview').textContent='';
+  document.getElementById('cp-msg').textContent='';
+  abrirModal('modal-cargar-puntos');
+}
+function previewPuntos(){
+  const importe = Number(document.getElementById('cp-importe').value)||0;
+  const pts = calcularPuntos(importe);
+  document.getElementById('cp-preview').textContent = importe>0 ? ('Suma '+pts+' puntos') : '';
+}
+async function confirmarCargaPuntos(){
+  const dni = document.getElementById('cp-dni').value;
+  const importe = Number(document.getElementById('cp-importe').value)||0;
+  const msg = document.getElementById('cp-msg');
+  msg.textContent='';
+  if(importe<=0){ msg.textContent='Ingresá un importe válido.'; return; }
+  const pts = calcularPuntos(importe);
+  try{
+    const { error:e1 } = await _sb.from('fidelizacion_compras').insert({
+      socio_dni:dni, importe, puntos_sumados:pts, vendedor:_userName
+    });
+    if(e1) throw e1;
+    const nuevoTotal = (_socioActual.puntos||0) + pts;
+    const { error:e2 } = await _sb.from('fidelizacion_socios').update({ puntos: nuevoTotal }).eq('dni', dni);
+    if(e2) throw e2;
+    toast('✅ +'+pts+' puntos cargados');
+    cerrarModal('modal-cargar-puntos');
+    _socioActual.puntos = nuevoTotal;
+    await refrescarFichaActual();
+  }catch(ex){ msg.textContent = ex.message || 'Error al guardar.'; }
+}
+
+// ══════════════════════════════════════════════════════════
+// CANJEAR PREMIO
+// ══════════════════════════════════════════════════════════
+async function abrirCanjear(){
+  document.getElementById('cj-dni').value = _socioActual.dni;
+  document.getElementById('cj-sub').textContent = _socioActual.nombre_completo+' tiene '+_socioActual.puntos+' puntos';
+  document.getElementById('cj-msg').textContent='';
+  const cont = document.getElementById('cj-lista');
+  cont.innerHTML = '<div style="text-align:center;padding:14px;color:#999">Cargando premios…</div>';
+  abrirModal('modal-canjear');
+  const { data:premios, error } = await _sb.from('fidelizacion_premios').select('*').eq('activo', true).order('puntos_requeridos',{ascending:true});
+  if(error){ cont.innerHTML=''; document.getElementById('cj-msg').textContent = error.message; return; }
+  if(!premios || !premios.length){ cont.innerHTML='<div style="text-align:center;padding:14px;color:#999">Todavía no hay premios cargados.</div>'; return; }
+  cont.innerHTML = premios.map(p=>{
+    const puede = _socioActual.puntos >= p.puntos_requeridos;
+    return `<div class="canje-list-item ${puede?'':'disabled'}">
+      <div><div class="n">${p.nombre}</div><div class="p">${p.puntos_requeridos} pts</div></div>
+      <button class="btn btn-primary" style="flex:0 0 auto;padding:8px 12px" ${puede?'':'disabled'}
+        onclick='abrirConfirmarCanje(${JSON.stringify(JSON.stringify(p))})'>Canjear</button>
+    </div>`;
+  }).join('');
+}
+
+let _premioSeleccionado = null;
+function abrirConfirmarCanje(premioStr){
+  _premioSeleccionado = JSON.parse(premioStr);
+  const restantes = _socioActual.puntos - _premioSeleccionado.puntos_requeridos;
+  document.getElementById('cc-detalle').innerHTML =
+    'Socio: <b>'+_socioActual.nombre_completo+'</b><br>'+
+    'Premio: <b>'+_premioSeleccionado.nombre+'</b><br>'+
+    'Puntos a descontar: <b>'+_premioSeleccionado.puntos_requeridos+'</b><br>'+
+    'Puntos restantes: <b>'+restantes+'</b>';
+  document.getElementById('cc-msg').textContent='';
+  abrirModal('modal-confirmar-canje');
+}
+
+async function ejecutarCanje(){
+  const msg = document.getElementById('cc-msg');
+  msg.textContent='';
+  try{
+    const nuevoTotal = _socioActual.puntos - _premioSeleccionado.puntos_requeridos;
+    if(nuevoTotal < 0){ msg.textContent='El socio no tiene puntos suficientes.'; return; }
+    const { error:e1 } = await _sb.from('fidelizacion_canjes').insert({
+      socio_dni:_socioActual.dni, premio_id:_premioSeleccionado.id, premio_nombre:_premioSeleccionado.nombre,
+      puntos_descontados:_premioSeleccionado.puntos_requeridos, vendedor:_userName
+    });
+    if(e1) throw e1;
+    const { error:e2 } = await _sb.from('fidelizacion_socios').update({ puntos:nuevoTotal }).eq('dni', _socioActual.dni);
+    if(e2) throw e2;
+
+    imprimirRecibo(_socioActual, _premioSeleccionado, nuevoTotal);
+
+    _socioActual.puntos = nuevoTotal;
+    cerrarModal('modal-confirmar-canje');
+    cerrarModal('modal-canjear');
+    toast('✅ Canje realizado');
+    await refrescarFichaActual();
+  }catch(ex){ msg.textContent = ex.message || 'Error al canjear.'; }
+}
+
+function imprimirRecibo(socio, premio, restantes){
+  document.getElementById('rc-fecha').textContent = new Date().toLocaleString('es-AR');
+  document.getElementById('rc-nombre').textContent = socio.nombre_completo;
+  document.getElementById('rc-dni').textContent = formatDNI(socio.dni);
+  document.getElementById('rc-premio').textContent = premio.nombre;
+  document.getElementById('rc-puntos').textContent = premio.puntos_requeridos;
+  document.getElementById('rc-restantes').textContent = restantes;
+  document.getElementById('rc-vendedor').textContent = _userName;
+  setTimeout(()=>window.print(), 150);
+}
+
+// ══════════════════════════════════════════════════════════
+// PREMIOS (cargar / listar / borrar)
+// ══════════════════════════════════════════════════════════
+function abrirPremios(){
+  ['pr-nombre','pr-desc','pr-puntos'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pr-foto').value='';
+  document.getElementById('pr-msg').textContent='';
+  abrirModal('modal-premios');
+  cargarListaPremios();
+}
+
+async function cargarListaPremios(){
+  const grid = document.getElementById('premios-grid');
+  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#999;padding:14px">Cargando…</div>';
+  const { data, error } = await _sb.from('fidelizacion_premios').select('*').order('puntos_requeridos',{ascending:true});
+  if(error){ grid.innerHTML='<div style="color:red">'+error.message+'</div>'; return; }
+  if(!data || !data.length){ grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#999;padding:14px">Todavía no cargaste premios. Cargá al menos 10 para incentivar los canjes.</div>'; return; }
+  grid.innerHTML = data.map(p=>`
+    <div class="premio-card">
+      <button class="pc-del" onclick="borrarPremio('${p.id}')">✕</button>
+      <img src="${p.foto_url||''}" onerror="this.style.background='#eee'">
+      <div class="pc-body">
+        <div class="pc-nom">${p.nombre}</div>
+        <div class="pc-pts">${p.puntos_requeridos} pts</div>
+      </div>
+    </div>`).join('');
+}
+
+async function guardarPremio(){
+  const nombre = document.getElementById('pr-nombre').value.trim();
+  const desc = document.getElementById('pr-desc').value.trim();
+  const puntos = parseInt(document.getElementById('pr-puntos').value)||0;
+  const fotoInput = document.getElementById('pr-foto');
+  const msg = document.getElementById('pr-msg');
+  msg.className='msg-inline err'; msg.textContent='';
+  if(!nombre){ msg.textContent='Ingresá el nombre del premio.'; return; }
+  if(puntos<=0){ msg.textContent='Ingresá los puntos requeridos.'; return; }
+
+  const btn = document.getElementById('pr-guardar-btn');
+  btn.disabled=true; btn.textContent='Guardando…';
+  try{
+    let fotoUrl = null;
+    if(fotoInput.files && fotoInput.files[0]){
+      const file = fotoInput.files[0];
+      const path = Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9.\-_]/g,'_');
+      const { error:upErr } = await _sb.storage.from('fidelizacion-premios').upload(path, file);
+      if(upErr) throw upErr;
+      const { data:pub } = _sb.storage.from('fidelizacion-premios').getPublicUrl(path);
+      fotoUrl = pub.publicUrl;
+    }
+    const { error } = await _sb.from('fidelizacion_premios').insert({
+      nombre, descripcion:desc, puntos_requeridos:puntos, foto_url:fotoUrl
+    });
+    if(error) throw error;
+    toast('✅ Premio agregado');
+    ['pr-nombre','pr-desc','pr-puntos'].forEach(id=>document.getElementById(id).value='');
+    fotoInput.value='';
+    await cargarListaPremios();
+  }catch(ex){ msg.textContent = ex.message || 'Error al guardar el premio.'; }
+  finally{ btn.disabled=false; btn.textContent='Agregar premio'; }
+}
+
+async function borrarPremio(id){
+  try{
+    const { error } = await _sb.from('fidelizacion_premios').update({ activo:false }).eq('id', id);
+    if(error) throw error;
+    toast('Premio dado de baja');
+    await cargarListaPremios();
+  }catch(ex){ toast('❌ '+(ex.message||'Error')); }
+}
+
+// ══════════════════════════════════════════════════════════
+// CUMPLEAÑOS DEL DÍA
+// ══════════════════════════════════════════════════════════
+async function cargarBannerCumpleanos(){
+  const hoy = new Date();
+  const dia = hoy.getDate(), mes = hoy.getMonth()+1;
+  try{
+    const { data, error } = await _sb.from('fidelizacion_socios').select('*').eq('cumple_dia', dia).eq('cumple_mes', mes);
+    if(error) throw error;
+    const banner = document.getElementById('cumple-banner');
+    const list = document.getElementById('cumple-list');
+    if(!data || !data.length){ banner.style.display='none'; return; }
+    document.getElementById('cumple-titulo').textContent = '🎂 '+data.length+' socio'+(data.length>1?'s':'')+' cumplen años hoy';
+    list.innerHTML = data.map(s=>{
+      const msgSaludo = '¡Feliz cumpleaños, '+ (s.nombre_completo.split(' ')[0]) +'! 🎉 Desde doméstico te deseamos un muy feliz día. Gracias por ser parte de nuestra familia de socios. 🧼✨';
+      return `<div class="cumple-item">
+        <div><div class="cumple-nombre">${s.nombre_completo}</div><div class="cumple-msg">${msgSaludo}</div></div>
+        <button class="btn-copiar" onclick="copiarSaludo(this, ${JSON.stringify(msgSaludo)})">Copiar</button>
+      </div>`;
+    }).join('');
+    banner.style.display='block';
+  }catch(ex){ console.warn('cumpleaños:', ex.message); }
+}
+function copiarSaludo(btn, texto){
+  navigator.clipboard.writeText(texto).then(()=>{
+    const t = btn.textContent; btn.textContent='¡Copiado!';
+    setTimeout(()=>btn.textContent=t, 1500);
+  });
+}
+
+// arrancar
+initApp();
+</script>
+</body>
+</html>
