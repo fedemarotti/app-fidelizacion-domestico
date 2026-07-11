@@ -23,9 +23,10 @@ input::placeholder,textarea::placeholder{color:#999;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:var(--gris-bg);color:var(--texto);min-height:100vh;font-size:15px;}
 .screen{display:none;min-height:100vh;flex-direction:column;}
 .screen.active{display:flex;}
-.header{background:var(--naranja);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 10px rgba(0,0,0,.25);flex-shrink:0;}
-.header-logo{flex:1;font-family:'Pacifico',cursive;font-size:22px;}
-.header-logo small{display:block;font-family:-apple-system,sans-serif;font-size:9px;font-weight:400;letter-spacing:2px;text-transform:uppercase;opacity:.75;margin-top:2px;}
+.header{background:var(--naranja);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 10px rgba(0,0,0,.25);flex-shrink:0;}
+.header-logo{flex:1;display:flex;flex-direction:column;gap:2px;}
+.header-logo img{height:34px;width:auto;display:block;}
+.header-logo small{display:block;font-family:-apple-system,sans-serif;font-size:9px;font-weight:400;letter-spacing:2px;text-transform:uppercase;opacity:.85;margin-top:1px;}
 #user-chip{display:none;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.35);border-radius:20px;padding:5px 10px 5px 8px;font-size:11px;font-weight:700;cursor:pointer;color:#fff;}
 .home-body{padding:20px 16px 40px;max-width:640px;margin:0 auto;width:100%;}
 .cumple-banner{background:linear-gradient(135deg,#fff5ef,#ffe9da);border:1.5px solid #ffd2b0;border-radius:14px;padding:14px 16px;margin-bottom:18px;}
@@ -46,7 +47,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 /* ── LOGIN ─────────────────────────────── */
 #login-overlay{position:fixed;inset:0;z-index:10000;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
 .login-box{width:100%;max-width:360px;display:flex;flex-direction:column;gap:18px;align-items:center;}
-.login-logo{font-family:'Pacifico',cursive;font-size:32px;color:var(--naranja);}
+.login-logo-img{width:210px;max-width:70vw;height:auto;display:block;}
 .login-sub{font-size:12px;color:#888;letter-spacing:3px;text-transform:uppercase;font-weight:600;margin-top:-12px;}
 .login-field{width:100%;display:flex;flex-direction:column;gap:6px;}
 .login-field label{font-size:11px;font-weight:700;color:#555;letter-spacing:.5px;text-transform:uppercase;}
@@ -129,7 +130,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
   #recibo-print{display:block!important;position:static;inset:auto;}
 }
 .recibo-hoja{width:100%;max-width:560px;margin:0 auto;padding:30px;font-family:Arial,Helvetica,sans-serif;color:#111;}
-.recibo-hoja h1{font-family:'Pacifico',cursive;color:var(--naranja);font-size:26px;margin-bottom:2px;}
+.recibo-hoja img.logo-recibo{height:46px;width:auto;display:block;margin-bottom:6px;}
 .recibo-hoja h2{font-size:13px;text-transform:uppercase;letter-spacing:2px;color:#888;margin-bottom:20px;}
 .recibo-tabla{width:100%;border-collapse:collapse;margin-bottom:24px;}
 .recibo-tabla td{padding:8px 4px;border-bottom:1px solid #ddd;font-size:13.5px;}
@@ -140,6 +141,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:11px 20px;border-radius:24px;font-size:13px;font-weight:700;z-index:9000;opacity:0;transition:opacity .25s;pointer-events:none;}
 .toast.show{opacity:1;}
 @media (max-width:420px){.menu-grid{grid-template-columns:1fr;}.premios-grid{grid-template-columns:1fr;}}
+@media (max-width:380px){.ficha-actions{grid-template-columns:1fr 1fr;}.ficha-actions button{font-size:11px;}}
+@media (min-width:900px){.home-body{max-width:760px;}.login-box{max-width:400px;}.modal-box{max-width:560px;}}
+@media (min-width:1200px){.home-body{max-width:860px;}}
 </style>
 </head>
 <body>
@@ -147,7 +151,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 <!-- LOGIN -->
 <div id="login-overlay" style="display:none">
   <div class="login-box">
-    <div class="login-logo">doméstico</div>
+    <img class="logo-domestico login-logo-img" alt="doméstico" src="logo-domestico.png">
     <div class="login-sub">Fidelización</div>
     <div class="login-field">
       <label>Email</label>
@@ -166,7 +170,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 
 <!-- SPLASH -->
 <div id="splash-screen" style="display:none">
-  <div class="login-logo">doméstico</div>
+  <img class="logo-domestico login-logo-img" alt="doméstico" src="logo-domestico.png">
   <div class="login-sub" style="margin-top:-6px">Fidelización</div>
   <div class="spinner"></div>
   <div style="font-size:12px;color:#bbb">Conectando con la nube…</div>
@@ -175,7 +179,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 <!-- HOME -->
 <div class="screen" id="screen-home">
   <div class="header">
-    <div class="header-logo">doméstico<small>Fidelización · Socios</small></div>
+    <div class="header-logo"><img class="logo-domestico" alt="doméstico" style="height:34px;width:auto" src="logo-domestico.png"><small>Fidelización · Socios</small></div>
     <div id="user-chip" onclick="doLogout()" title="Cerrar sesión">
       <span id="user-chip-name">👤</span><span>Salir</span>
     </div>
@@ -192,8 +196,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
       <div class="menu-btn naranja" onclick="abrirVerSocio()">
         <div class="ico">🔎</div><div class="lbl">Ver Socio</div>
       </div>
-      <div class="menu-btn full verde" onclick="abrirPremios()">
-        <div class="ico" style="margin-right:8px">🎁</div><div class="lbl">Cargar Premios</div>
+      <div class="menu-btn verde" onclick="abrirVerSocio('puntos')">
+        <div class="ico">➕</div><div class="lbl">Cargar Puntos</div>
+      </div>
+      <div class="menu-btn verde" onclick="abrirPremios()">
+        <div class="ico">🎁</div><div class="lbl">Cargar Premios</div>
       </div>
     </div>
   </div>
@@ -255,8 +262,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 <div class="modal-overlay" id="modal-ver-socio">
   <div class="modal-box" style="max-width:520px">
     <div id="vs-buscar">
-      <div class="modal-title">Ver Socio</div>
-      <div class="modal-sub">Buscá por DNI. Si no lo encontrás, buscá por apellido.</div>
+      <div class="modal-title" id="vs-title">Ver Socio</div>
+      <div class="modal-sub" id="vs-sub">Buscá por DNI. Si no lo encontrás, buscá por apellido.</div>
       <div class="search-row">
         <input type="text" id="vs-dni" placeholder="D.N.I. (22.988.951)" inputmode="numeric" oninput="onDniInput(this)"
           onkeydown="if(event.key==='Enter') buscarPorDni()">
@@ -375,7 +382,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 <!-- RECIBO IMPRIMIBLE -->
 <div id="recibo-print">
   <div class="recibo-hoja">
-    <h1>doméstico</h1>
+    <img class="logo-domestico logo-recibo" alt="doméstico" src="logo-domestico.png">
     <h2>Recibo de canje de premio</h2>
     <table class="recibo-tabla">
       <tr><td>Fecha</td><td id="rc-fecha"></td></tr>
@@ -410,9 +417,6 @@ let _sb = null;
 let _userRole = null;
 let _userName = '';
 
-// ══════════════════════════════════════════════════════════
-// LOGIN
-// ══════════════════════════════════════════════════════════
 async function initApp(){
   _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const { data:{ session } } = await _sb.auth.getSession();
@@ -581,14 +585,23 @@ async function guardarSocioNuevo(){
 // VER SOCIO — búsqueda + ficha
 // ══════════════════════════════════════════════════════════
 let _socioActual = null;
+let _accionDirecta = null; // null | 'puntos' — atajo desde el botón "Cargar Puntos" del home
 
-function abrirVerSocio(){
+function abrirVerSocio(modo){
+  _accionDirecta = modo || null;
   document.getElementById('vs-dni').value='';
   document.getElementById('vs-apellido').value='';
   document.getElementById('vs-resultados').innerHTML='';
   document.getElementById('vs-msg').textContent='';
   document.getElementById('vs-buscar').style.display='block';
   document.getElementById('vs-ficha').style.display='none';
+  if(_accionDirecta==='puntos'){
+    document.getElementById('vs-title').textContent = 'Cargar Puntos';
+    document.getElementById('vs-sub').textContent = 'Buscá al socio por DNI (o apellido) para cargarle los puntos de su compra.';
+  }else{
+    document.getElementById('vs-title').textContent = 'Ver Socio';
+    document.getElementById('vs-sub').textContent = 'Buscá por DNI. Si no lo encontrás, buscá por apellido.';
+  }
   abrirModal('modal-ver-socio');
 }
 
@@ -626,6 +639,12 @@ function seleccionarSocioJSON(str){ abrirFichaSocio(JSON.parse(str)); }
 
 async function abrirFichaSocio(socio){
   _socioActual = socio;
+  if(_accionDirecta==='puntos'){
+    _accionDirecta = null;
+    cerrarModal('modal-ver-socio');
+    abrirCargarPuntos();
+    return;
+  }
   document.getElementById('vs-buscar').style.display='none';
   const ficha = document.getElementById('vs-ficha');
   ficha.style.display='block';
