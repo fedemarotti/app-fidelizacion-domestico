@@ -25,9 +25,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 .screen.active{display:flex;}
 .header{background:var(--naranja);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 10px rgba(0,0,0,.25);flex-shrink:0;}
 .header-logo{flex:1;display:flex;flex-direction:column;gap:2px;}
-.header-logo img{height:34px;width:auto;display:block;}
+.header-logo img{height:40px;width:auto;display:block;background:#f5f2e3;border-radius:8px;padding:3px 8px;box-shadow:0 1px 4px rgba(0,0,0,.15);}
 .header-logo small{display:block;font-family:-apple-system,sans-serif;font-size:9px;font-weight:400;letter-spacing:2px;text-transform:uppercase;opacity:.85;margin-top:1px;}
-#user-chip{display:none;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.35);border-radius:20px;padding:5px 10px 5px 8px;font-size:11px;font-weight:700;cursor:pointer;color:#fff;}
+#user-chip{display:none;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.35);border-radius:20px;padding:5px 10px 5px 8px;font-size:11px;font-weight:700;cursor:pointer;color:#fff;}#user-chip:hover{background:rgba(255,255,255,.28);}#user-chip:active{transform:scale(.96);}
 .home-body{padding:20px 16px 40px;max-width:640px;margin:0 auto;width:100%;}
 .cumple-banner{background:linear-gradient(135deg,#fff5ef,#ffe9da);border:1.5px solid #ffd2b0;border-radius:14px;padding:14px 16px;margin-bottom:18px;}
 .cumple-banner h3{font-size:13px;color:var(--naranja-dark);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
@@ -35,14 +35,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 .cumple-item:last-child{margin-bottom:0;}
 .cumple-nombre{font-weight:800;font-size:13px;}
 .cumple-msg{font-size:11px;color:var(--texto-suave);margin-top:2px;max-width:320px;}
-.btn-copiar{background:var(--verde);color:#fff;border:none;border-radius:8px;padding:7px 10px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;}
+.btn-copiar{background:var(--verde);color:#fff;border:none;border-radius:8px;padding:7px 10px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;}.btn-copiar:hover{filter:brightness(1.1);}.btn-copiar:active{transform:scale(.95);}
 .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px;}
 .menu-btn{background:var(--gris-card);border:1.5px solid var(--gris-borde);border-radius:16px;padding:26px 14px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.05);transition:transform .1s;}
-.menu-btn:active{transform:scale(.97);}
+.menu-btn:hover{box-shadow:0 6px 16px rgba(0,0,0,.12);transform:translateY(-2px);}.menu-btn:active{transform:scale(.96);box-shadow:0 2px 6px rgba(0,0,0,.08);}.menu-btn.naranja:hover{border-color:var(--naranja);}.menu-btn.verde:hover{border-color:var(--verde);}
 .menu-btn .ico{font-size:34px;}
 .menu-btn .lbl{font-weight:800;font-size:13.5px;text-align:center;letter-spacing:.2px;}
 .menu-btn.naranja{border-color:#f3c7a8;}
 .menu-btn.verde{border-color:#b7ddc4;}
+.menu-btn.img-btn{padding:0;overflow:hidden;background:transparent;border:none;box-shadow:0 3px 10px rgba(0,0,0,.10);}
+.menu-btn.img-btn img{width:100%;height:100%;display:block;object-fit:cover;border-radius:16px;}
+.menu-btn.img-btn:hover{box-shadow:0 8px 20px rgba(0,0,0,.18);}
 .menu-btn.full{grid-column:1/-1;flex-direction:row;justify-content:center;padding:16px;}
 /* ── LOGIN ─────────────────────────────── */
 #login-overlay{position:fixed;inset:0;z-index:10000;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
@@ -55,7 +58,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 .login-field input:focus{border-color:var(--naranja);}
 .login-field input.login-error{border-color:var(--rojo);}
 .login-btn{width:100%;padding:14px;background:var(--naranja);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;}
-.login-btn:disabled{opacity:.5;}
+.login-btn:hover:not(:disabled){background:var(--naranja-dark);}.login-btn:active:not(:disabled){transform:scale(.98);}.login-btn:disabled{opacity:.5;}
 .login-err-msg{font-size:13px;color:var(--rojo);text-align:center;min-height:18px;font-weight:600;}
 #splash-screen{position:fixed;inset:0;z-index:9999;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
 @keyframes _spin{to{transform:rotate(360deg);}}
@@ -64,7 +67,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 14px;}
 .modal-overlay.active{display:flex;}
 .modal-box{background:#fff;border-radius:18px;width:100%;max-width:480px;padding:22px;margin:auto;box-shadow:0 10px 50px rgba(0,0,0,.3);}
-.modal-title{font-size:17px;font-weight:900;margin-bottom:4px;}
+.modal-title{font-size:17px;font-weight:900;margin-bottom:4px;}.modal-head{display:flex;align-items:center;gap:10px;margin-bottom:2px;}.modal-back{background:#f2f2f2;border:none;border-radius:50%;width:30px;height:30px;font-size:16px;font-weight:800;cursor:pointer;flex-shrink:0;color:#333;transition:background .12s,transform .05s;}.modal-back:hover{background:#e6e6e6;}.modal-back:active{transform:scale(.92);}.modal-head .modal-title{margin-bottom:0;}
 .modal-sub{font-size:12px;color:var(--texto-suave);margin-bottom:16px;}
 .field{margin-bottom:12px;}
 .field label{display:block;font-size:11px;font-weight:800;color:#555;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
@@ -78,7 +81,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 .btn-secondary{background:#eee;color:#333;}
 .btn-verde{background:var(--verde);color:#fff;}
 .btn-rojo{background:var(--rojo);color:#fff;}
-.btn:disabled{opacity:.5;cursor:default;}
+.btn{transition:filter .12s,transform .05s;}.btn:hover:not(:disabled){filter:brightness(1.08);}.btn:active:not(:disabled){transform:scale(.96);filter:brightness(.95);}.btn-secondary:hover{background:#e2e2e2;}.btn:disabled{opacity:.5;cursor:default;}
 .msg-inline{font-size:12.5px;font-weight:700;text-align:center;min-height:16px;margin-top:6px;}
 .msg-inline.err{color:var(--rojo);}
 .msg-inline.ok{color:var(--verde);}
@@ -87,7 +90,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 .search-row input{flex:1;}
 .search-results{margin-bottom:10px;}
 .search-hit{padding:10px 12px;border:1.5px solid var(--gris-borde);border-radius:10px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
-.search-hit:hover{border-color:var(--naranja);}
+.search-hit:hover{border-color:var(--naranja);}.search-hit:active{transform:scale(.98);background:#faf8f6;}
 .search-hit .nom{font-weight:800;font-size:13.5px;}
 .search-hit .dni{font-size:11.5px;color:var(--texto-suave);}
 /* ficha socio */
@@ -99,7 +102,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 .ficha-puntos span{font-size:9px;text-transform:uppercase;letter-spacing:.5px;}
 .ficha-datos{font-size:12.5px;color:#444;line-height:1.9;margin-bottom:14px;background:#f8f8f8;border-radius:10px;padding:10px 12px;}
 .ficha-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
-.ficha-actions button{padding:10px 4px;border:none;border-radius:9px;font-size:11.5px;font-weight:800;cursor:pointer;color:#fff;}
+.ficha-actions button{padding:10px 4px;border:none;border-radius:9px;font-size:11.5px;font-weight:800;cursor:pointer;color:#fff;}.ficha-actions button{transition:filter .12s,transform .05s;}.ficha-actions button:hover{filter:brightness(1.1);}.ficha-actions button:active{transform:scale(.95);}
 .hist-title{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;color:var(--texto-suave);margin:14px 0 8px;}
 .hist-item{display:flex;justify-content:space-between;padding:9px 10px;border-bottom:1px solid #eee;font-size:12.5px;}
 .hist-item .fec{color:var(--texto-suave);font-size:11px;}
@@ -115,19 +118,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 .premio-card .pc-body{padding:9px 10px;}
 .premio-card .pc-nom{font-size:12.5px;font-weight:800;line-height:1.25;}
 .premio-card .pc-pts{font-size:12px;color:var(--naranja);font-weight:900;margin-top:3px;}
-.premio-card .pc-del{position:absolute;top:6px;right:6px;background:rgba(192,57,43,.9);color:#fff;border:none;border-radius:6px;width:22px;height:22px;font-size:12px;cursor:pointer;}
+.premio-card .pc-del{position:absolute;top:6px;right:6px;background:rgba(192,57,43,.9);color:#fff;border:none;border-radius:6px;width:22px;height:22px;font-size:12px;cursor:pointer;}.premio-card .pc-del:hover{background:var(--rojo);}.premio-card .pc-del:active{transform:scale(.9);}
 .canje-list-item{border:1.5px solid var(--gris-borde);border-radius:12px;padding:10px 12px;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
 .canje-list-item.disabled{opacity:.4;}
 .canje-list-item .n{font-weight:800;font-size:13px;}
 .canje-list-item .p{font-size:11.5px;color:var(--texto-suave);}
-.back-link{font-size:12px;color:var(--naranja);font-weight:700;cursor:pointer;margin-bottom:10px;display:inline-block;}
+.back-link{font-size:12px;color:var(--naranja);font-weight:700;cursor:pointer;margin-bottom:10px;display:inline-block;}.back-link:hover{text-decoration:underline;}.back-link:active{transform:scale(.97);}
 .dot-toggle{display:flex;gap:8px;margin-bottom:12px;}
 .dot-toggle label{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;cursor:pointer;}
 /* ── RECIBO IMPRIMIBLE ──────────────────────── */
 #recibo-print{display:none;}
+#lista-socios-print{display:none;}
 @media print{
-  body>*:not(#recibo-print){display:none!important;}
-  #recibo-print{display:block!important;position:static;inset:auto;}
+  body{background-image:none!important;background-color:#fff!important;}
+  body>*:not(.print-active){display:none!important;}
+  .print-active{display:block!important;position:static;inset:auto;}
+  @page{size:A4;margin:14mm;}
 }
 .recibo-hoja{width:100%;max-width:560px;margin:0 auto;padding:30px;font-family:Arial,Helvetica,sans-serif;color:#111;}
 .recibo-hoja img.logo-recibo{height:46px;width:auto;display:block;margin-bottom:6px;}
@@ -138,6 +144,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 .recibo-tabla td:last-child{font-weight:800;text-align:right;}
 .recibo-firma{margin-top:60px;display:flex;justify-content:space-between;gap:30px;}
 .recibo-firma div{flex:1;border-top:1.5px solid #333;padding-top:6px;font-size:11.5px;text-align:center;color:#555;}
+.lista-hoja{width:100%;font-family:Arial,Helvetica,sans-serif;color:#111;}
+.lista-hoja-head{display:flex;align-items:center;gap:12px;border-bottom:2.5px solid var(--naranja);padding-bottom:10px;margin-bottom:14px;}
+.lista-hoja-head img{height:40px;width:auto;display:block;}
+.lista-hoja-head div h1{font-size:15px;letter-spacing:1px;text-transform:uppercase;color:var(--naranja-dark);}
+.lista-hoja-head div p{font-size:10.5px;color:#777;margin-top:2px;}
+.lista-hoja-fecha{margin-left:auto;font-size:10px;color:#888;text-align:right;}
+.lista-tabla{width:100%;border-collapse:collapse;font-size:10.5px;}
+.lista-tabla thead th{background:var(--naranja);color:#fff;text-align:left;padding:6px 7px;font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;}
+.lista-tabla thead th.col-nro,.lista-tabla tbody td.col-nro{text-align:center;width:34px;}
+.lista-tabla thead th.col-pts,.lista-tabla tbody td.col-pts{text-align:right;width:50px;}
+.lista-tabla tbody td{padding:5px 7px;border-bottom:1px solid #e6e6e6;}
+.lista-tabla tbody tr:nth-child(even){background:#f7f7f7;}
+.lista-tabla tbody td.col-pts{font-weight:800;color:var(--naranja-dark);}
+.lista-hoja-footer{margin-top:10px;font-size:9px;color:#999;text-align:right;}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:11px 20px;border-radius:24px;font-size:13px;font-weight:700;z-index:9000;opacity:0;transition:opacity .25s;pointer-events:none;}
 .toast.show{opacity:1;}
 @media (max-width:420px){.menu-grid{grid-template-columns:1fr;}.premios-grid{grid-template-columns:1fr;}}
@@ -152,7 +172,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 <!-- LOGIN -->
 <div id="login-overlay" style="display:none">
   <div class="login-box">
-    <img class="logo-domestico login-logo-img" alt="doméstico" src="logo-domestico.png">
+    <img class="logo-domestico login-logo-img" alt="doméstico" src="logo-club-domestico.webp">
     <div class="login-sub">Fidelización</div>
     <div class="login-field">
       <label>Email</label>
@@ -171,7 +191,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 
 <!-- SPLASH -->
 <div id="splash-screen" style="display:none">
-  <img class="logo-domestico login-logo-img" alt="doméstico" src="logo-domestico.png">
+  <img class="logo-domestico login-logo-img" alt="doméstico" src="logo-club-domestico.webp">
   <div class="login-sub" style="margin-top:-6px">Fidelización</div>
   <div class="spinner"></div>
   <div style="font-size:12px;color:#bbb">Conectando con la nube…</div>
@@ -180,7 +200,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 <!-- HOME -->
 <div class="screen" id="screen-home">
   <div class="header">
-    <div class="header-logo"><img class="logo-domestico" alt="doméstico" style="height:34px;width:auto" src="logo-domestico.png"><small>Fidelización · Socios</small></div>
+    <div class="header-logo"><img class="logo-domestico" alt="doméstico"  src="logo-club-domestico.webp"><small>Fidelización · Socios</small></div>
     <div id="user-chip" onclick="doLogout()" title="Cerrar sesión">
       <span id="user-chip-name">👤</span><span>Salir</span>
     </div>
@@ -191,17 +211,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
       <div id="cumple-list"></div>
     </div>
     <div class="menu-grid">
-      <div class="menu-btn naranja" onclick="abrirCargarSocio()">
-        <div class="ico">📝</div><div class="lbl">Cargar Socio</div>
+      <div class="menu-btn img-btn" onclick="abrirCargarSocio()">
+        <img src="btn-cargar-socio.webp" alt="Cargar Socio">
       </div>
-      <div class="menu-btn naranja" onclick="abrirVerSocio()">
-        <div class="ico">🔎</div><div class="lbl">Ver Socio</div>
+      <div class="menu-btn img-btn" onclick="abrirVerSocio()">
+        <img src="btn-ver-socio.webp" alt="Ver Socios">
       </div>
-      <div class="menu-btn verde" onclick="abrirVerSocio('puntos')">
-        <div class="ico">➕</div><div class="lbl">Cargar Puntos</div>
+      <div class="menu-btn img-btn" onclick="abrirVerSocio('puntos')">
+        <img src="btn-cargar-puntos.webp" alt="Cargar Puntos">
       </div>
-      <div class="menu-btn verde" onclick="abrirPremios()">
-        <div class="ico">🎁</div><div class="lbl">Cargar Premios</div>
+      <div class="menu-btn img-btn" onclick="abrirPremios()">
+        <img src="btn-cargar-premios.webp" alt="Cargar Premios">
       </div>
     </div>
   </div>
@@ -210,7 +230,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 <!-- MODAL: CARGAR SOCIO -->
 <div class="modal-overlay" id="modal-cargar-socio">
   <div class="modal-box">
-    <div class="modal-title">Cargar Socio</div>
+    <div class="modal-head"><button class="modal-back" onclick="cerrarModal('modal-cargar-socio')" title="Atrás">←</button><div class="modal-title">Cargar Socio</div></div>
     <div class="modal-sub">Alta gratuita · suma 100 puntos al confirmar</div>
     <div class="field">
       <label>D.N.I.</label>
@@ -263,7 +283,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 <div class="modal-overlay" id="modal-ver-socio">
   <div class="modal-box" style="max-width:520px">
     <div id="vs-buscar">
-      <div class="modal-title" id="vs-title">Ver Socio</div>
+      <div class="modal-head"><button class="modal-back" onclick="cerrarModal('modal-ver-socio')" title="Atrás">←</button><div class="modal-title" id="vs-title">Ver Socios</div></div>
       <div class="modal-sub" id="vs-sub">Buscá por DNI. Si no lo encontrás, buscá por apellido.</div>
       <div class="search-row">
         <input type="text" id="vs-dni" placeholder="D.N.I. (22.988.951)" inputmode="numeric" oninput="onDniInput(this)"
@@ -276,6 +296,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
       </div>
       <div class="search-results" id="vs-resultados"></div>
       <div class="msg-inline err" id="vs-msg"></div>
+      <div class="back-link" style="display:block" onclick="abrirListaSocios()">📋 Ver lista completa de socios</div>
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="cerrarModal('modal-ver-socio')">Cerrar</button>
       </div>
@@ -287,7 +308,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 <!-- MODAL: EDITAR SOCIO -->
 <div class="modal-overlay" id="modal-editar-socio">
   <div class="modal-box">
-    <div class="modal-title">Editar Información</div>
+    <div class="modal-head"><button class="modal-back" onclick="cerrarModal('modal-editar-socio')" title="Atrás">←</button><div class="modal-title">Editar Información</div></div>
     <input type="hidden" id="es-dni-original">
     <div class="field"><label>D.N.I.</label><input type="text" id="es-dni" inputmode="numeric" oninput="onDniInput(this)"></div>
     <div class="field"><label>Nombre y Apellido</label><input type="text" id="es-nombre"></div>
@@ -316,7 +337,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 <!-- MODAL: CARGAR PUNTOS -->
 <div class="modal-overlay" id="modal-cargar-puntos">
   <div class="modal-box">
-    <div class="modal-title">Cargar Puntos</div>
+    <div class="modal-head"><button class="modal-back" onclick="cerrarModal('modal-cargar-puntos')" title="Atrás">←</button><div class="modal-title">Cargar Puntos</div></div>
     <div class="modal-sub" id="cp-sub"></div>
     <input type="hidden" id="cp-dni">
     <div class="field">
@@ -335,7 +356,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 <!-- MODAL: CANJEAR PREMIO -->
 <div class="modal-overlay" id="modal-canjear">
   <div class="modal-box">
-    <div class="modal-title">Canjear Premio</div>
+    <div class="modal-head"><button class="modal-back" onclick="cerrarModal('modal-canjear')" title="Atrás">←</button><div class="modal-title">Canjear Premio</div></div>
     <div class="modal-sub" id="cj-sub"></div>
     <input type="hidden" id="cj-dni">
     <div id="cj-lista"></div>
@@ -349,7 +370,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 <!-- MODAL: CONFIRMAR CANJE -->
 <div class="modal-overlay" id="modal-confirmar-canje">
   <div class="modal-box">
-    <div class="modal-title">Confirmar canje</div>
+    <div class="modal-head"><button class="modal-back" onclick="cerrarModal('modal-confirmar-canje')" title="Atrás">←</button><div class="modal-title">Confirmar canje</div></div>
     <div class="modal-sub" id="cc-detalle" style="font-size:13.5px;color:#333"></div>
     <div class="msg-inline err" id="cc-msg"></div>
     <div class="modal-actions">
@@ -362,7 +383,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 <!-- MODAL: CARGAR / VER PREMIOS -->
 <div class="modal-overlay" id="modal-premios">
   <div class="modal-box" style="max-width:560px">
-    <div class="modal-title">Premios</div>
+    <div class="modal-head"><button class="modal-back" onclick="cerrarModal('modal-premios')" title="Atrás">←</button><div class="modal-title">Premios</div></div>
     <div class="modal-sub">Cargá los premios que los socios pueden canjear con sus puntos.</div>
     <div class="field"><label>Nombre del premio</label><input type="text" id="pr-nombre" placeholder="Ej: Kit de limpieza premium"></div>
     <div class="field"><label>Descripción</label><textarea id="pr-desc" rows="2" placeholder="Detalle del premio"></textarea></div>
@@ -383,7 +404,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 <!-- RECIBO IMPRIMIBLE -->
 <div id="recibo-print">
   <div class="recibo-hoja">
-    <img class="logo-domestico logo-recibo" alt="doméstico" src="logo-domestico.png">
+    <img class="logo-domestico logo-recibo" alt="doméstico" src="logo-club-domestico.webp">
     <h2>Recibo de canje de premio</h2>
     <table class="recibo-tabla">
       <tr><td>Fecha</td><td id="rc-fecha"></td></tr>
@@ -403,6 +424,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
       <div>Firma del socio</div>
       <div>Firma / sello doméstico</div>
     </div>
+  </div>
+</div>
+
+<!-- LISTA COMPLETA DE SOCIOS IMPRIMIBLE (A4) -->
+<div id="lista-socios-print">
+  <div class="lista-hoja">
+    <div class="lista-hoja-head">
+      <img class="logo-domestico" alt="doméstico" src="logo-club-domestico.webp">
+      <div>
+        <h1>doméstico · Programa de Fidelización</h1>
+        <p>Listado completo de socios</p>
+      </div>
+      <div class="lista-hoja-fecha" id="lsp-fecha"></div>
+    </div>
+    <table class="lista-tabla">
+      <thead>
+        <tr>
+          <th class="col-nro">Nro.</th>
+          <th>Nombre</th>
+          <th>DNI</th>
+          <th>WhatsApp</th>
+          <th>Mail</th>
+          <th class="col-pts">Puntos</th>
+        </tr>
+      </thead>
+      <tbody id="lsp-tbody"></tbody>
+    </table>
+    <div class="lista-hoja-footer" id="lsp-footer"></div>
   </div>
 </div>
 
@@ -600,7 +649,7 @@ function abrirVerSocio(modo){
     document.getElementById('vs-title').textContent = 'Cargar Puntos';
     document.getElementById('vs-sub').textContent = 'Buscá al socio por DNI (o apellido) para cargarle los puntos de su compra.';
   }else{
-    document.getElementById('vs-title').textContent = 'Ver Socio';
+    document.getElementById('vs-title').textContent = 'Ver Socios';
     document.getElementById('vs-sub').textContent = 'Buscá por DNI. Si no lo encontrás, buscá por apellido.';
   }
   abrirModal('modal-ver-socio');
@@ -854,7 +903,50 @@ function imprimirRecibo(socio, premio, restantes){
   document.getElementById('rc-puntos').textContent = premio.puntos_requeridos;
   document.getElementById('rc-restantes').textContent = restantes;
   document.getElementById('rc-vendedor').textContent = _userName;
-  setTimeout(()=>window.print(), 150);
+  imprimirDiv('recibo-print');
+}
+
+function imprimirDiv(id){
+  const el = document.getElementById(id);
+  el.classList.add('print-active');
+  setTimeout(()=>{
+    window.print();
+    setTimeout(()=>el.classList.remove('print-active'), 300);
+  }, 150);
+}
+
+// ══════════════════════════════════════════════════════════
+// VER LISTA COMPLETA DE SOCIOS (imprimible A4)
+// ══════════════════════════════════════════════════════════
+async function abrirListaSocios(){
+  const msg = document.getElementById('vs-msg');
+  msg.textContent='';
+  try{
+    let query = _sb.from('fidelizacion_socios').select('*').order('created_at', {ascending:true});
+    let { data, error } = await query;
+    if(error){
+      // fallback si la tabla no tiene created_at: se ordena por id
+      const r2 = await _sb.from('fidelizacion_socios').select('*').order('id', {ascending:true});
+      if(r2.error) throw r2.error;
+      data = r2.data;
+    }
+    if(!data){ data = []; }
+    const tbody = document.getElementById('lsp-tbody');
+    tbody.innerHTML = data.map((s,i)=>`
+      <tr>
+        <td class="col-nro">${i+1}</td>
+        <td>${s.nombre_completo||''}</td>
+        <td>${formatDNI(s.dni)}</td>
+        <td>${s.whatsapp||'—'}</td>
+        <td>${s.email||'—'}</td>
+        <td class="col-pts">${s.puntos||0}</td>
+      </tr>`).join('');
+    document.getElementById('lsp-fecha').textContent = 'Emitido: '+new Date().toLocaleString('es-AR');
+    document.getElementById('lsp-footer').textContent = 'Total de socios: '+data.length;
+    imprimirDiv('lista-socios-print');
+  }catch(ex){
+    msg.textContent = ex.message || 'Error al generar la lista.';
+  }
 }
 
 // ══════════════════════════════════════════════════════════
