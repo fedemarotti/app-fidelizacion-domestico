@@ -159,6 +159,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 .lista-tabla tbody tr:nth-child(even){background:#f7f7f7;}
 .lista-tabla tbody td.col-pts{font-weight:800;color:var(--naranja-dark);}
 .lista-hoja-footer{margin-top:10px;font-size:9px;color:#999;text-align:right;}
+.lista-scroll{max-height:52vh;overflow-y:auto;overflow-x:auto;border:1.5px solid var(--gris-borde);border-radius:12px;margin-top:4px;}
+.lista-tabla-modal{width:100%;border-collapse:collapse;font-size:12.5px;min-width:520px;}
+.lista-tabla-modal thead th{position:sticky;top:0;background:var(--naranja);color:#fff;padding:9px 8px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.4px;z-index:1;}
+.lista-tabla-modal tbody td{padding:8px;border-bottom:1px solid #eee;}
+.lista-tabla-modal tbody tr:nth-child(even){background:#f9f9f9;}
+.lista-tabla-modal tbody tr:hover{background:#fdf1e9;}
+.lista-tabla-modal .col-nro{width:44px;color:#999;font-weight:700;}
+.lista-tabla-modal .col-pts{font-weight:800;color:var(--naranja-dark);text-align:right;}
+@media (max-width:600px){.lista-scroll{max-height:46vh;}}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:11px 20px;border-radius:24px;font-size:13px;font-weight:700;z-index:9000;opacity:0;transition:opacity .25s;pointer-events:none;}
 .toast.show{opacity:1;}
 @media (max-width:420px){.menu-grid{grid-template-columns:1fr;}.premios-grid{grid-template-columns:1fr;}}
@@ -297,12 +306,44 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
       </div>
       <div class="search-results" id="vs-resultados"></div>
       <div class="msg-inline err" id="vs-msg"></div>
-      <div class="back-link" style="display:block" onclick="abrirListaSocios()">📋 Ver lista completa de socios</div>
+      <div class="back-link" style="display:block" onclick="abrirListaSociosModal()">📋 Ver lista completa de socios</div>
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="cerrarModal('modal-ver-socio')">Cerrar</button>
       </div>
     </div>
     <div id="vs-ficha" style="display:none"></div>
+  </div>
+</div>
+
+<!-- MODAL: LISTA COMPLETA DE SOCIOS (navegable) -->
+<div class="modal-overlay" id="modal-lista-socios">
+  <div class="modal-box" style="max-width:720px">
+    <div class="modal-head"><button class="modal-back" onclick="cerrarModal('modal-lista-socios')" title="Atrás">←</button><div class="modal-title">Lista de Socios</div></div>
+    <div class="modal-sub" id="ls-sub">Navegá o filtrá la lista completa. Usá "Imprimir" para generar la hoja A4.</div>
+    <div class="search-row">
+      <input type="text" id="ls-filtro" placeholder="Filtrar por nombre o DNI…" oninput="filtrarListaSocios(this.value)">
+    </div>
+    <div class="lista-scroll">
+      <table class="lista-tabla-modal">
+        <thead>
+          <tr>
+            <th class="col-nro">Nro.</th>
+            <th>Nombre</th>
+            <th>DNI</th>
+            <th>WhatsApp</th>
+            <th>Mail</th>
+            <th class="col-pts">Puntos</th>
+          </tr>
+        </thead>
+        <tbody id="ls-tbody"></tbody>
+      </table>
+      <div class="msg-inline" id="ls-vacio" style="display:none">No hay socios que coincidan con la búsqueda.</div>
+    </div>
+    <div class="msg-inline err" id="ls-msg"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="cerrarModal('modal-lista-socios')">Cerrar</button>
+      <button class="btn btn-primary" onclick="imprimirListaSocios()">🖨️ Imprimir</button>
+    </div>
   </div>
 </div>
 
@@ -919,9 +960,14 @@ function imprimirDiv(id){
 // ══════════════════════════════════════════════════════════
 // VER LISTA COMPLETA DE SOCIOS (imprimible A4)
 // ══════════════════════════════════════════════════════════
-async function abrirListaSocios(){
-  const msg = document.getElementById('vs-msg');
+let _listaSociosData = [];
+
+async function abrirListaSociosModal(){
+  const msg = document.getElementById('ls-msg');
   msg.textContent='';
+  document.getElementById('ls-filtro').value='';
+  document.getElementById('ls-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:14px">Cargando…</td></tr>';
+  abrirModal('modal-lista-socios');
   try{
     let query = _sb.from('fidelizacion_socios').select('*').order('created_at', {ascending:true});
     let { data, error } = await query;
@@ -932,22 +978,62 @@ async function abrirListaSocios(){
       data = r2.data;
     }
     if(!data){ data = []; }
-    const tbody = document.getElementById('lsp-tbody');
-    tbody.innerHTML = data.map((s,i)=>`
-      <tr>
-        <td class="col-nro">${i+1}</td>
-        <td>${s.nombre_completo||''}</td>
-        <td>${formatDNI(s.dni)}</td>
-        <td>${s.whatsapp||'—'}</td>
-        <td>${s.email||'—'}</td>
-        <td class="col-pts">${s.puntos||0}</td>
-      </tr>`).join('');
-    document.getElementById('lsp-fecha').textContent = 'Emitido: '+new Date().toLocaleString('es-AR');
-    document.getElementById('lsp-footer').textContent = 'Total de socios: '+data.length;
-    imprimirDiv('lista-socios-print');
+    _listaSociosData = data;
+    renderListaSociosTabla(data.map((s,i)=>({...s, _nro:i+1})));
   }catch(ex){
-    msg.textContent = ex.message || 'Error al generar la lista.';
+    msg.textContent = ex.message || 'Error al cargar la lista.';
+    document.getElementById('ls-tbody').innerHTML = '';
   }
+}
+
+function renderListaSociosTabla(rows){
+  const tbody = document.getElementById('ls-tbody');
+  const vacio = document.getElementById('ls-vacio');
+  if(!rows.length){
+    tbody.innerHTML = '';
+    vacio.style.display = 'block';
+    return;
+  }
+  vacio.style.display = 'none';
+  tbody.innerHTML = rows.map(r=>`
+    <tr>
+      <td class="col-nro">${r._nro}</td>
+      <td>${r.nombre_completo||''}</td>
+      <td>${formatDNI(r.dni)}</td>
+      <td>${r.whatsapp||'—'}</td>
+      <td>${r.email||'—'}</td>
+      <td class="col-pts">${r.puntos||0}</td>
+    </tr>`).join('');
+}
+
+function filtrarListaSocios(q){
+  const numerados = _listaSociosData.map((s,i)=>({...s, _nro:i+1}));
+  const term = (q||'').trim().toLowerCase();
+  if(!term){ renderListaSociosTabla(numerados); return; }
+  const termDni = term.replace(/[.\s]/g,'');
+  const filtradas = numerados.filter(s=>{
+    const nombre = (s.nombre_completo||'').toLowerCase();
+    const dni = String(s.dni||'').replace(/[.\s]/g,'');
+    return nombre.includes(term) || dni.includes(termDni);
+  });
+  renderListaSociosTabla(filtradas);
+}
+
+function imprimirListaSocios(){
+  const data = _listaSociosData;
+  const tbody = document.getElementById('lsp-tbody');
+  tbody.innerHTML = data.map((s,i)=>`
+    <tr>
+      <td class="col-nro">${i+1}</td>
+      <td>${s.nombre_completo||''}</td>
+      <td>${formatDNI(s.dni)}</td>
+      <td>${s.whatsapp||'—'}</td>
+      <td>${s.email||'—'}</td>
+      <td class="col-pts">${s.puntos||0}</td>
+    </tr>`).join('');
+  document.getElementById('lsp-fecha').textContent = 'Emitido: '+new Date().toLocaleString('es-AR');
+  document.getElementById('lsp-footer').textContent = 'Total de socios: '+data.length;
+  imprimirDiv('lista-socios-print');
 }
 
 // ══════════════════════════════════════════════════════════
